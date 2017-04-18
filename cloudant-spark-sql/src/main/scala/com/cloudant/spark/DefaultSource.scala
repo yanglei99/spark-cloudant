@@ -74,7 +74,7 @@ case class CloudantReadWriteRelation (config:CloudantConfig, schema: StructType 
  */
 class DefaultSource extends RelationProvider with CreatableRelationProvider with SchemaRelationProvider{
 
-      implicit val system = SparkEnv.get.actorSystem
+      implicit val system = JsonStoreConfigManager.getActorSystem()
       val logger = Logging(system, getClass)
 
     def createRelation(sqlContext: SQLContext, parameters: Map[String, String]) = {

@@ -78,7 +78,7 @@ class JsonStoreRDD(@transient sc: SparkContext, config: CloudantConfig,
   }
   
   override def getPartitions: Array[Partition] = {
-    implicit val system = SparkEnv.get.actorSystem
+    implicit val system = JsonStoreConfigManager.getActorSystem()
     val logger = Logging(system, getClass)
 
     logger.info(s"Partition config - total=$totalPartition, " +

@@ -40,7 +40,7 @@ import akka.event.Logging
  */
 class FilterInterpreter(origFilters: Array[Filter]) {
 
-  implicit val system = SparkEnv.get.actorSystem
+  implicit val system = JsonStoreConfigManager.getActorSystem()
   private val logger = Logging(system, getClass)
 
   lazy val firstField = {
@@ -125,7 +125,7 @@ class FilterInterpreter(origFilters: Array[Filter]) {
  */
 class FilterUtil(filters: Map[String, Array[Filter]]) {
 
-  implicit val system = SparkEnv.get.actorSystem
+  implicit val system = JsonStoreConfigManager.getActorSystem()
   private val logger = Logging(system, getClass)
   def apply(implicit r: JsValue = null): Boolean = {
     if (r == null) return true

@@ -13,7 +13,7 @@ object JsonUtil{
         val f = currentValue \ path(i)
         f match {
           case s : JsUndefined => break
-          case _ =>  currentValue = f
+          case _ =>  currentValue = f.get
         }
         if (i == path.length -1) //The leaf node
           finalValue = Some(currentValue)

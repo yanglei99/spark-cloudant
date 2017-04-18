@@ -29,11 +29,11 @@ import akka.actor.ActorSystem
 Only allow one field pushdown now
 as the filter today does not tell how to link the filters out And v.s. Or
 */
-@serializable class CloudantConfig(val protocol:String, val host: String, val dbName: String,
+class CloudantConfig(val protocol:String, val host: String, val dbName: String,
     val indexName: String = null, val viewName:String = null)
     (implicit val username: String, val password: String,
     val partitions:Int, val maxInPartition: Int, val minInPartition:Int,
-    val requestTimeout:Long,val bulkSize: Int, val schemaSampleSize: Int) {
+    val requestTimeout:Long,val bulkSize: Int, val schemaSampleSize: Int) extends Serializable{
   
    private val SCHEMA_FOR_ALL_DOCS_NUM = -1
   private lazy val dbUrl = {protocol + "://"+ host+"/"+dbName}
@@ -61,7 +61,7 @@ as the filter today does not tell how to link the filters out And v.s. Or
     schemaSampleSize
   }
   
-  def getLastNum(result: JsValue): JsValue = {result \ "last_seq"}
+  def getLastNum(result: JsValue): JsValue = {(result \ "last_seq").get}
   
   def getTotalUrl(url: String) = {
     if (url.contains('?')) url+"&limit=1"
@@ -194,7 +194,7 @@ as the filter today does not tell how to link the filters out And v.s. Or
     
   def getRows(result: JsValue): Seq[JsValue] = {
     if (viewName == null) {
-      ((result \ "rows").asInstanceOf[JsArray]).value.map(row => row \ "doc")
+      ((result \ "rows").asInstanceOf[JsArray]).value.map(row => (row \ "doc").get)
     } else {
       ((result \ "rows").asInstanceOf[JsArray]).value.map(row => row)
     }
