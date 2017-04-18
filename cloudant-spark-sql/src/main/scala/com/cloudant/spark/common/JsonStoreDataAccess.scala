@@ -18,21 +18,19 @@ package com.cloudant.spark.common
 
 import com.cloudant.spark.{JsonUtil, CloudantConfig}
 import spray.client.pipelining._
-import scala.concurrent._
+import spray.httpx.marshalling.Marshaller
 import akka.event.Logging
 import play.api.libs.json.Json
 import play.api.libs.json.JsValue
-import scala.collection.mutable.HashMap
 import play.api.libs.json.JsNull
+import play.api.libs.json.JsString
 import org.apache.spark.sql.sources._
 import org.apache.spark.SparkEnv
-import spray.httpx.marshalling.Marshaller
-import play.api.libs.json.JsString
 import com.typesafe.config.ConfigFactory
+import scala.collection.mutable.HashMap
 import scala.util.Random
-import scala.concurrent.Future
-import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._
+import scala.concurrent._
 
 import akka.actor.ActorSystem
 import akka.util.Timeout
@@ -50,7 +48,7 @@ class JsonStoreDataAccess (config: CloudantConfig)  {
   implicit lazy val timeout = {Timeout(config.requestTimeout)}
   implicit lazy val system = config.getSystem()
   
-  implicit lazy val executionContext = system.dispatchers.lookup("thread-pool-dispatcher")
+  implicit lazy val executionContext = system.dispatchers.lookup("my-thread-pool-dispatcher")
     
   lazy val logger = {Logging(system, getClass)}
 
@@ -214,7 +212,7 @@ class JsonStoreDataAccess (config: CloudantConfig)  {
     val failureFuture = allFutures.map { x => x.filter {  y => (! y.status.isSuccess) }.map { z => z.status.reason }}
     val reason= Await.result(failureFuture, (config.requestTimeout * totalBulks).millis).toSet
     val end_ts: Long = System.currentTimeMillis / 1000
-    logger.info(s"Save total ${rows.length} with bulkSize $bulkSize in ${end_ts-start_ts}s")
+    logger.warning(s"Save total ${rows.length} with bulkSize $bulkSize in ${end_ts-start_ts}s")
     if (reason.size>0)
     {
          throw new RuntimeException(s"Save to Database ${config.getDbname()} failed with $reason")
